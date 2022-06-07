@@ -1,47 +1,53 @@
-﻿using PathCreation;
+﻿using System;
+using PathCreation;
+using Terrain.Tiles;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
 namespace Terrain
 {
-    public class TerrainGenerator : MonoBehaviour
+    public class TerrainManager : MonoBehaviour
     {
-        [SerializeField] private Tilemap tilemap;
-        [SerializeField] private TileBase grassTile;
-        [SerializeField] private TileBase waterTile;
-        [SerializeField] private TileBase sandTile;
+        public Tilemap tilemap;
+        public TileRegistry tileRegistry;
 
-        public void GenerateNew(BoundsInt bound)
+        [NonSerialized] public TileBase SandTile;
+        [NonSerialized] public TileBase WaterTile;
+        [NonSerialized] public TileBase GrassTile;
+        [NonSerialized] public Save Save;
+
+        private void Awake()
         {
-            if (Random.value > 0.6)
+            Save = new Save("test_save", this);
+            SandTile = tileRegistry.Get("sand");
+            WaterTile = tileRegistry.Get("water");
+            GrassTile = tileRegistry.Get("grass");
+        }
+
+        public Chunk GenerateNewChunk(Vector2Int chunkPos)
+        {
+            var chunk = new Chunk(tileRegistry, Save, chunkPos);
+            var min = chunk.min;
+            var max = chunk.max;
+            
+            for (var i = min.x; i < max.x; i++)
             {
-                for (var i = 0; i < Random.Range(1, 2); i++)
+                for (var j = min.y; j < max.y; j++)
                 {
-                    var x1 = Random.Range(bound.xMin, bound.xMax);
-                    var x2 = Random.Range(bound.xMin, bound.xMax);
-                    var y1 = Random.Range(bound.yMin, bound.yMax);
-                    var y2 = Random.Range(bound.yMin, bound.yMax);
-                
-                    CreateRiver(new Vector2Int(x1, y1), new Vector2Int(x2, y2), Random.Range(2, 7), Random.Range(2, 6));
+                    var pos = new Vector3Int(i, j);
+                    if (tilemap.GetTile(pos) == null)
+                    {
+                        PlaceTile(chunk, pos, GrassTile);
+                    }
                 }
             }
-            
-            AddSand(bound);
-            
-            for (var i = 0; i < Random.Range(1, 2); i++)
-            {
-                var x1 = Random.Range(bound.xMin, bound.xMax);
-                var x2 = Random.Range(bound.xMin, bound.xMax);
-                var y1 = Random.Range(bound.yMin, bound.yMax);
-                var y2 = Random.Range(bound.yMin, bound.yMax);
-                
-                CreateRiver(new Vector2Int(x1, y1), new Vector2Int(x2, y2), Random.Range(2, 7), Random.Range(2, 6));
-            }
+
+            return chunk;
         }
 
         // uses a bezier curve generator of with n amount of control points at random locations between the 2 ends and connect points using water tiles
-        private void CreateRiver(Vector2Int start, Vector2Int end, int offset, int thickness)
+        private void CreateRiver(Chunk chunk, Vector2Int start, Vector2Int end, int offset, int thickness)
         {
             // amount of control points between the start and end point, scales with the length of the river
             var length = (end - start).magnitude;
@@ -59,7 +65,7 @@ namespace Terrain
 
                 var lastPos = i == 0 ? start : points[i - 1];
 
-                points[i] = lastPos + new Vector2Int((int) offsetX, (int) offsetY);
+                points[i] = lastPos + new Vector2Int(offsetX, offsetY);
             }
 
             // last point being the end point
@@ -79,19 +85,22 @@ namespace Terrain
                 {
                     for (var j = pos.y - halfThickness; j < pos.y + halfThickness; j++)
                     {
-                        PlaceTile(new Vector3(i, j, 0), waterTile);
+                        PlaceTile(chunk, new Vector3(i, j, 0), WaterTile);
                     }
                 }
             }
         }
 
-        private void AddSand(BoundsInt bounds)
+        private void AddSand(Chunk chunk)
         {
-            for (var i = bounds.xMin; i < bounds.xMax; i++)
+            var min = chunk.min;
+            var max = chunk.max;
+            
+            for (var i = min.x; i < max.x; i++)
             {
-                for (var j = bounds.yMin; j < bounds.yMax; j++)
+                for (var j = min.y; j < max.y; j++)
                 {
-                    if (tilemap.GetTile(new Vector3Int(i, j, 0)) != waterTile) continue;
+                    if (tilemap.GetTile(new Vector3Int(i, j, 0)) != WaterTile) continue;
                     
                     for (var x = -1; x <= 1; x++) {
                         for (var y = -1; y <= 1; y++) {
@@ -103,7 +112,7 @@ namespace Terrain
                                 
                             if (tilemap.GetTile(pos) is null)
                             {
-                                PlaceTile(pos, sandTile);
+                                PlaceTile(chunk, pos, SandTile);
                             }
                         }
                     }
@@ -111,14 +120,15 @@ namespace Terrain
             }
         }
         
-        private void PlaceTile(Vector3Int pos, TileBase tile)
+        private void PlaceTile(Chunk chunk, Vector3Int pos, TileBase tile)
         {
+            chunk.Set(new Vector2Int(pos.x, pos.y), tile);
             tilemap.SetTile(pos, tile);
         }
         
-        private void PlaceTile(Vector3 pos, TileBase tile)
+        private void PlaceTile(Chunk chunk, Vector3 pos, TileBase tile)
         {
-            PlaceTile(new Vector3Int((int) pos.x, (int) pos.y, (int) pos.z), tile);
+            PlaceTile(chunk, new Vector3Int((int) pos.x, (int) pos.y, (int) pos.z), tile);
         }
     }
 }

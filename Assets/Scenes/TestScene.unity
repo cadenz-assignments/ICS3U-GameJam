@@ -203,7 +203,7 @@ TilemapRenderer:
   m_MaxChunkCount: 16
   m_MaxFrameAge: 16
   m_SortOrder: 3
-  m_Mode: 0
+  m_Mode: 1
   m_DetectChunkCullingBounds: 0
   m_MaskInteraction: 0
 --- !u!1839735485 &210072807
@@ -221,7 +221,11 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   m_TileSpriteArray:
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 0
@@ -229,30 +233,30 @@ Tilemap:
   m_TileMatrixArray:
   - m_RefCount: 0
     m_Data:
-      e00: 0
+      e00: 1e-45
       e01: 0
-      e02: -8.081546e-39
-      e03: -8.081546e-39
+      e02: 3.3750038
+      e03: 3.3750038
       e10: 0
       e11: 0
-      e12: 8.8e-43
-      e13: 8.8e-43
-      e20: -1.3707527e-35
+      e12: 9.25e-43
+      e13: 9.25e-43
+      e20: -4.5027954e+14
       e21: 1e-45
-      e22: 1.2587977e-18
-      e23: -8.594915e+9
+      e22: -2.316513e-19
+      e23: -2.0178566
       e30: 4.5904e-41
       e31: 0
-      e32: 8.81e-43
-      e33: 8.83e-43
+      e32: 9.25e-43
+      e33: 9.28e-43
   m_TileColorArray:
   - m_RefCount: 0
-    m_Data: {r: NaN, g: NaN, b: NaN, a: NaN}
+    m_Data: {r: 1.2102e-41, g: 1.2102e-41, b: 1.2102e-41, a: 1.2102e-41}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: -10, y: -5, z: 0}
-  m_Size: {x: 15, y: 9, z: 1}
+  m_Origin: {x: -16, y: -16, z: 0}
+  m_Size: {x: 21, y: 20, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -285,9 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 210072807}
-  grassTile: {fileID: 11400000, guid: a8bac2f44d6053347acdcaf1a82e63aa, type: 2}
-  waterTile: {fileID: 11400000, guid: a8bac2f44d6053347acdcaf1a82e63aa, type: 2}
-  sandTile: {fileID: 11400000, guid: acd373a2798dda946a2448df690bc624, type: 2}
+  tileRegistry: {fileID: 11400000, guid: 818b8f03ee1412541a3a2168d3d2ae37, type: 2}
 --- !u!1 &1220589794
 GameObject:
   m_ObjectHideFlags: 0
@@ -451,7 +453,7 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
---- !u!1001 &1548738285
+--- !u!1001 &1527390218
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2

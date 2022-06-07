@@ -6,13 +6,19 @@ namespace Players
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] private float speed = 6;
+        
         private Rigidbody2D _rigidbody2D;
-        private TerrainGenerator _terrainGenerator;
+        private TerrainManager _terrainManager;
+        private Vector3Int _prevPos;
         
         private void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
-            _terrainGenerator = FindObjectOfType<TerrainGenerator>();
+            _terrainManager = FindObjectOfType<TerrainManager>();
+            _prevPos = _terrainManager.tilemap.WorldToCell(_rigidbody2D.position);
+
+            var startChunk = Chunk.ToChunkPos(new Vector2Int((int) _prevPos.x, (int) _prevPos.y));
+            EnteredNewChunk(startChunk, startChunk);
         }
 
         private void FixedUpdate()
@@ -44,6 +50,23 @@ namespace Players
             dir.Normalize();
             
             _rigidbody2D.MovePosition(_rigidbody2D.position + dir * (Time.deltaTime * speed));
+            var newPos = _terrainManager.tilemap.WorldToCell(_rigidbody2D.position);
+            
+            var oldChunkPos = Chunk.ToChunkPos(new Vector2Int((int) _prevPos.x, (int) _prevPos.y));
+            var newChunkPos = Chunk.ToChunkPos(new Vector2Int(newPos.x, newPos.y));
+    
+            if (oldChunkPos != newChunkPos)
+            {
+                EnteredNewChunk(oldChunkPos, newChunkPos);
+            }
+            
+            _prevPos = _terrainManager.tilemap.WorldToCell(_rigidbody2D.position);
+        }
+
+        private void EnteredNewChunk(Vector2Int oldChunkPos, Vector2Int newChunkPos)
+        {
+            _terrainManager.Save.UnloadChunks(oldChunkPos);
+            _terrainManager.Save.LoadOrCreateChunk(newChunkPos);
         }
     }
 }
