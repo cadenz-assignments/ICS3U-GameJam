@@ -1,3 +1,4 @@
+using Terrain;
 using UnityEngine;
 
 namespace Players
@@ -6,10 +7,12 @@ namespace Players
     {
         [SerializeField] private float speed = 6;
         private Rigidbody2D _rigidbody2D;
-
+        private TerrainGenerator _terrainGenerator;
+        
         private void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
+            _terrainGenerator = FindObjectOfType<TerrainGenerator>();
         }
 
         private void FixedUpdate()
@@ -36,6 +39,8 @@ namespace Players
                 dir += Vector2.right;
             }
 
+            if (dir == Vector2.zero) return;
+            
             dir.Normalize();
             
             _rigidbody2D.MovePosition(_rigidbody2D.position + dir * (Time.deltaTime * speed));
