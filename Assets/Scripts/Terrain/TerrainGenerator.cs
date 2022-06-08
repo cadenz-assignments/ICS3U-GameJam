@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace Terrain
 {
-    public class TerrainManager : MonoBehaviour
+    public class TerrainGenerator : MonoBehaviour
     {
         public Tilemap tilemap;
         public TileRegistry tileRegistry;
@@ -31,23 +31,26 @@ namespace Terrain
             var min = chunk.min;
             var max = chunk.max;
             
-            for (var i = min.x; i < max.x; i++)
+            for (float i = min.x; i < max.x; i++)
             {
-                for (var j = min.y; j < max.y; j++)
+                for (float j = min.y; j < max.y; j++)
                 {
-                    var pos = new Vector3Int(i, j);
-                    if (tilemap.GetTile(pos) == null)
+                    var pos = new Vector3Int((int)i, (int)j);
+                    var noiseValue = Mathf.Clamp(Mathf.PerlinNoise(i/Chunk.ChunkSize, j/Chunk.ChunkSize), 0, 1);
+                    if (tilemap.GetTile(pos) is null)
                     {
-                        PlaceTile(chunk, pos, GrassTile);
+                        PlaceTile(chunk, pos, noiseValue > 0.6 ? WaterTile : GrassTile);
                     }
                 }
             }
+
+            AddSand(chunk);
 
             return chunk;
         }
 
         // uses a bezier curve generator of with n amount of control points at random locations between the 2 ends and connect points using water tiles
-        private void CreateRiver(Chunk chunk, Vector2Int start, Vector2Int end, int offset, int thickness)
+        private void PlaceRiver(Chunk chunk, Vector2Int start, Vector2Int end, int offset, int thickness)
         {
             // amount of control points between the start and end point, scales with the length of the river
             var length = (end - start).magnitude;
@@ -109,8 +112,10 @@ namespace Terrain
                             }
 
                             var pos = new Vector3Int(i + x, j + y, 0);
-                                
-                            if (tilemap.GetTile(pos) is null)
+                               
+                            if (!chunk.InsideChunk(pos)) continue;
+
+                            if (tilemap.GetTile(pos) != WaterTile)
                             {
                                 PlaceTile(chunk, pos, SandTile);
                             }
@@ -119,7 +124,7 @@ namespace Terrain
                 }    
             }
         }
-        
+
         private void PlaceTile(Chunk chunk, Vector3Int pos, TileBase tile)
         {
             chunk.Set(new Vector2Int(pos.x, pos.y), tile);

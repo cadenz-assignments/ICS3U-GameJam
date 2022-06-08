@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Terrain;
 using UnityEngine;
 
@@ -6,16 +9,17 @@ namespace Players
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] private float speed = 6;
+        [SerializeField] private ParticleSystem waterParticle;
         
         private Rigidbody2D _rigidbody2D;
-        private TerrainManager _terrainManager;
+        private TerrainGenerator _terrainGenerator;
         private Vector3Int _prevPos;
         
         private void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
-            _terrainManager = FindObjectOfType<TerrainManager>();
-            _prevPos = _terrainManager.tilemap.WorldToCell(_rigidbody2D.position);
+            _terrainGenerator = FindObjectOfType<TerrainGenerator>();
+            _prevPos = _terrainGenerator.tilemap.WorldToCell(_rigidbody2D.position);
 
             var startChunk = Chunk.ToChunkPos(_prevPos);
             EnteredNewChunk(startChunk, startChunk);
@@ -50,26 +54,59 @@ namespace Players
             dir.Normalize();
             
             _rigidbody2D.MovePosition(_rigidbody2D.position + dir * (Time.deltaTime * speed));
-            var newPos = _terrainManager.tilemap.WorldToCell(_rigidbody2D.position);
+            var newPos = _terrainGenerator.tilemap.WorldToCell(_rigidbody2D.position);
             
             var oldChunkPos = Chunk.ToChunkPos(_prevPos);
             var newChunkPos = Chunk.ToChunkPos(newPos);
-
-            Debug.Log("Old Pos" + _prevPos);
-            Debug.Log("New Pos" + newPos);
             
             if (oldChunkPos != newChunkPos)
             {
                 EnteredNewChunk(oldChunkPos, newChunkPos);
             }
             
-            _prevPos = _terrainManager.tilemap.WorldToCell(_rigidbody2D.position);
+            _prevPos = _terrainGenerator.tilemap.WorldToCell(_rigidbody2D.position);
+        }
+        
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            if (!other.gameObject.CompareTag("BaseEnvironment")) return;
+            speed /= 1.5f;
+            waterParticle.Play();
+        }
+        
+        private void OnTriggerExit2D(Collider2D other)
+        {
+            if (!other.gameObject.CompareTag("BaseEnvironment")) return;
+            speed *= 1.5f;
+            waterParticle.Play();
         }
 
         private void EnteredNewChunk(Vector2Int oldChunkPos, Vector2Int newChunkPos)
         {
-            _terrainManager.Save.UnloadChunks(oldChunkPos);
-            _terrainManager.Save.LoadOrCreateChunk(newChunkPos);
+            var oldPoses = new List<Vector2Int>();
+            var newPoses = new List<Vector2Int>();
+            
+            for (var i = -2; i < 2; i++)
+            {
+                for (var j = -2; j < 2; j++)
+                {
+                    var offset = new Vector2Int(i, j);
+                    oldPoses.Add(oldChunkPos + offset);
+                    newPoses.Add(newChunkPos + offset);
+                }
+            }
+
+            oldPoses.RemoveAll(pos => newPoses.Contains(pos));
+
+            if (oldPoses.Any())
+            {
+                _terrainGenerator.Save.UnloadChunks(oldPoses);
+            }
+            
+            foreach (var n in newPoses)
+            {
+                _terrainGenerator.Save.LoadOrCreateChunk(n);
+            }
         }
     }
 }

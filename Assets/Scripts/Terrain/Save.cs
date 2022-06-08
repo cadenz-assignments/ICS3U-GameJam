@@ -12,11 +12,11 @@ namespace Terrain
         private readonly string _name;
         private readonly string _path;
         private readonly string _chunkPath;
-        private readonly TerrainManager _terrainManager;
+        private readonly TerrainGenerator _terrainGenerator;
         
         public Dictionary<Vector2Int, Chunk> LoadedChunks;
 
-        public Save(string name, TerrainManager terrainManager)
+        public Save(string name, TerrainGenerator terrainGenerator)
         {
             _name = name;
             
@@ -40,7 +40,7 @@ namespace Terrain
             }
 
             LoadedChunks = new Dictionary<Vector2Int, Chunk>();
-            _terrainManager = terrainManager;
+            _terrainGenerator = terrainGenerator;
         }
 
         public bool DoesChunkExist(Vector2Int pos, out bool isLoaded)
@@ -71,16 +71,22 @@ namespace Terrain
             {
                 if (isLoaded) return;
                 var c = JsonUtility.FromJson<Chunk>(File.ReadAllText(_chunkPath + GetChunkFileName(pos)));
-                c.Fill(_terrainManager.tilemap);
+                c.TileRegistry = _terrainGenerator.tileRegistry;
+                c.Fill(_terrainGenerator.tilemap);
                 LoadedChunks.Add(pos, c);
             }
             else
             {
-                LoadedChunks.Add(pos, _terrainManager.GenerateNewChunk(pos));
+                LoadedChunks.Add(pos, _terrainGenerator.GenerateNewChunk(pos));
             }
         }
         
         public void UnloadChunks(params Vector2Int[] poses)
+        {
+            UnloadChunks((IEnumerable<Vector2Int>) poses);
+        }
+        
+        public void UnloadChunks(IEnumerable<Vector2Int> poses)
         {
             foreach (var pos in poses)
             {
@@ -89,7 +95,7 @@ namespace Terrain
                 File.WriteAllText(_chunkPath + GetChunkFileName(pos), JsonUtility.ToJson(chunk, false));
                 foreach (var p in chunk.poses)
                 {
-                    _terrainManager.tilemap.SetTile(new Vector3Int(p.x, p.y, 0), null);
+                    _terrainGenerator.tilemap.SetTile(new Vector3Int(p.x, p.y, 0), null);
                 }
             }
         }

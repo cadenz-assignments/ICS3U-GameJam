@@ -20,7 +20,7 @@ namespace Terrain
         public List<Vector2Int> poses;
         public List<string> tiles;
 
-        public TileRegistry tileRegistry;
+        [NonSerialized] public TileRegistry TileRegistry;
         
         /// Creates the chunk object but does NOT generate the tiles. You should NEVER call this. Use LoadOrGenerate instead. 
         public Chunk(TileRegistry tileRegistry, Save save, Vector2Int pos)
@@ -32,7 +32,7 @@ namespace Terrain
             min = pos * ChunkSize;
             max = min + new Vector2Int(ChunkSize, ChunkSize);
 
-            this.tileRegistry = tileRegistry;
+            TileRegistry = tileRegistry;
         }
 
         public void Set(Vector2Int p, TileBase tile)
@@ -41,13 +41,13 @@ namespace Terrain
             if (poses.Contains(p))
             {
                 var index = poses.IndexOf(p);
-                tiles[index] = tileRegistry.GetId(tile);
+                tiles[index] = TileRegistry.GetId(tile);
                 Invalidate();
                 return;
             }
             
             poses.Add(p);
-            tiles.Add(tileRegistry.GetId(tile));
+            tiles.Add(TileRegistry.GetId(tile));
             Invalidate();
         }
 
@@ -64,7 +64,7 @@ namespace Terrain
         {
             Invalidate();
             var index = poses.IndexOf(p);
-            return index == -1 ? null : tileRegistry.Get(tiles[index]);
+            return index == -1 ? null : TileRegistry.Get(tiles[index]);
         }
 
         public void Fill(Tilemap tilemap)
@@ -74,6 +74,16 @@ namespace Terrain
                 var t = Get(p);
                 tilemap.SetTile(new Vector3Int(p.x, p.y, 0), t);
             }
+        }
+
+        public bool InsideChunk(Vector3 p)
+        {
+            return p.x >= min.x && p.x < max.x && p.y >= min.y && p.y < max.y;
+        }
+
+        public bool InsideChunk(Vector2 p)
+        {
+            return p.x >= min.x && p.x < max.x && p.y >= min.y && p.y < max.y;
         }
 
         private void Invalidate()
