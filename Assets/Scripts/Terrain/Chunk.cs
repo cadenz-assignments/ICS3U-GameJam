@@ -93,9 +93,9 @@ namespace Terrain
             return new BoundsInt(min.x, min.y, 0, ChunkSize, ChunkSize, 0);
         }
 
-        public static Vector2Int ToChunkPos(Vector2Int pos)
+        public static Vector2Int ToChunkPos(Vector3 pos)
         {
-            return new Vector2Int((int) Math.Floor(pos.x / 32f), (int) Math.Floor(pos.y / 32f));
+            return new Vector2Int((int) MathF.Floor(pos.x / ChunkSize), (int) MathF.Floor(pos.y / ChunkSize));
         }
     }
 }

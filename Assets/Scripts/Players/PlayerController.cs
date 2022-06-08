@@ -17,7 +17,7 @@ namespace Players
             _terrainManager = FindObjectOfType<TerrainManager>();
             _prevPos = _terrainManager.tilemap.WorldToCell(_rigidbody2D.position);
 
-            var startChunk = Chunk.ToChunkPos(new Vector2Int((int) _prevPos.x, (int) _prevPos.y));
+            var startChunk = Chunk.ToChunkPos(_prevPos);
             EnteredNewChunk(startChunk, startChunk);
         }
 
@@ -52,9 +52,12 @@ namespace Players
             _rigidbody2D.MovePosition(_rigidbody2D.position + dir * (Time.deltaTime * speed));
             var newPos = _terrainManager.tilemap.WorldToCell(_rigidbody2D.position);
             
-            var oldChunkPos = Chunk.ToChunkPos(new Vector2Int((int) _prevPos.x, (int) _prevPos.y));
-            var newChunkPos = Chunk.ToChunkPos(new Vector2Int(newPos.x, newPos.y));
-    
+            var oldChunkPos = Chunk.ToChunkPos(_prevPos);
+            var newChunkPos = Chunk.ToChunkPos(newPos);
+
+            Debug.Log("Old Pos" + _prevPos);
+            Debug.Log("New Pos" + newPos);
+            
             if (oldChunkPos != newChunkPos)
             {
                 EnteredNewChunk(oldChunkPos, newChunkPos);
