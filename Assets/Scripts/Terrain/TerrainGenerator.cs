@@ -12,22 +12,22 @@ namespace Terrain
         public Tilemap tilemap;
         public TileRegistry tileRegistry;
 
-        [NonSerialized] public TileBase SandTile;
-        [NonSerialized] public TileBase WaterTile;
-        [NonSerialized] public TileBase GrassTile;
-        [NonSerialized] public Save Save;
+        [NonSerialized] private TileBase _sandTile;
+        [SerializeField] private TileBase waterTile;
+        [NonSerialized] private TileBase _grassTile;
+        [NonSerialized] public Save save;
 
         private void Awake()
         {
-            Save = new Save("test_save", this);
-            SandTile = tileRegistry.Get("sand");
-            WaterTile = tileRegistry.Get("water");
-            GrassTile = tileRegistry.Get("grass");
+            save = new Save("test_save", this);
+            _sandTile = tileRegistry.Get("sand");
+            waterTile = tileRegistry.Get("water");
+            _grassTile = tileRegistry.Get("grass");
         }
 
         public Chunk GenerateNewChunk(Vector2Int chunkPos)
         {
-            var chunk = new Chunk(tileRegistry, Save, chunkPos);
+            var chunk = new Chunk(tileRegistry, save, chunkPos);
             var min = chunk.min;
             var max = chunk.max;
             
@@ -39,7 +39,7 @@ namespace Terrain
                     var noiseValue = Mathf.Clamp(Mathf.PerlinNoise(i/Chunk.ChunkSize, j/Chunk.ChunkSize), 0, 1);
                     if (tilemap.GetTile(pos) is null)
                     {
-                        PlaceTile(chunk, pos, noiseValue > 0.6 ? WaterTile : GrassTile);
+                        PlaceTile(chunk, pos, noiseValue > 0.6 ? waterTile : _grassTile);
                     }
                 }
             }
@@ -88,7 +88,7 @@ namespace Terrain
                 {
                     for (var j = pos.y - halfThickness; j < pos.y + halfThickness; j++)
                     {
-                        PlaceTile(chunk, new Vector3(i, j, 0), WaterTile);
+                        PlaceTile(chunk, new Vector3(i, j, 0), waterTile);
                     }
                 }
             }
@@ -103,7 +103,7 @@ namespace Terrain
             {
                 for (var j = min.y; j < max.y; j++)
                 {
-                    if (tilemap.GetTile(new Vector3Int(i, j, 0)) != WaterTile) continue;
+                    if (tilemap.GetTile(new Vector3Int(i, j, 0)) != waterTile) continue;
                     
                     for (var x = -1; x <= 1; x++) {
                         for (var y = -1; y <= 1; y++) {
@@ -115,9 +115,9 @@ namespace Terrain
                                
                             if (!chunk.InsideChunk(pos)) continue;
 
-                            if (tilemap.GetTile(pos) != WaterTile)
+                            if (tilemap.GetTile(pos) != waterTile)
                             {
-                                PlaceTile(chunk, pos, SandTile);
+                                PlaceTile(chunk, pos, _sandTile);
                             }
                         }
                     }

@@ -21,12 +21,12 @@ namespace Terrain
             _name = name;
             
             var sb = new StringBuilder(Application.persistentDataPath);
-            sb.Append("/Save/");
+            sb.Append("/Saves/");
             sb.Append(name);
             sb.Append("/");
             _path = sb.ToString();
 
-            sb.Append("Chunks/");
+            sb.Append("ground_chunks/");
             _chunkPath = sb.ToString();
 
             if (!Directory.Exists(_path))

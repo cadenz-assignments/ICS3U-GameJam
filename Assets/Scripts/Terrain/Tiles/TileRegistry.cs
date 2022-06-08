@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 
 namespace Terrain.Tiles
 {
-    [CreateAssetMenu(fileName = "Tile Registry", menuName = "Tile Registry")]
+    [CreateAssetMenu(fileName = "Tile Registry", menuName = "Registry/Tile Registry")]
     public class TileRegistry : ScriptableObject
     {
         [SerializeField] private TileRegistryDictionary registry;

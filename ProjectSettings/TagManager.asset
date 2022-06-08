@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - BaseEnvironment
+  - PlacedTiles
   layers:
   - Default
   - TransparentFX

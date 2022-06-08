@@ -9,7 +9,6 @@ namespace Players
     public class PlayerController : MonoBehaviour
     {
         [SerializeField] private float speed = 6;
-        [SerializeField] private ParticleSystem waterParticle;
         
         private Rigidbody2D _rigidbody2D;
         private TerrainGenerator _terrainGenerator;
@@ -71,14 +70,12 @@ namespace Players
         {
             if (!other.gameObject.CompareTag("BaseEnvironment")) return;
             speed /= 1.5f;
-            waterParticle.Play();
         }
         
         private void OnTriggerExit2D(Collider2D other)
         {
             if (!other.gameObject.CompareTag("BaseEnvironment")) return;
             speed *= 1.5f;
-            waterParticle.Play();
         }
 
         private void EnteredNewChunk(Vector2Int oldChunkPos, Vector2Int newChunkPos)
@@ -100,12 +97,12 @@ namespace Players
 
             if (oldPoses.Any())
             {
-                _terrainGenerator.Save.UnloadChunks(oldPoses);
+                _terrainGenerator.save.UnloadChunks(oldPoses);
             }
             
             foreach (var n in newPoses)
             {
-                _terrainGenerator.Save.LoadOrCreateChunk(n);
+                _terrainGenerator.save.LoadOrCreateChunk(n);
             }
         }
     }
