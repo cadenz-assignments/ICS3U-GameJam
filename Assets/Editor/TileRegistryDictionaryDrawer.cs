@@ -1,4 +1,4 @@
-using Terrain.Tiles;
+using Terrain;
 using UnityEditor;
 
 namespace Editor

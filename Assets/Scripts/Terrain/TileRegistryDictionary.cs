@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.Tilemaps;
 
-namespace Terrain.Tiles
+namespace Terrain
 {
     [Serializable]
     public class TileRegistryDictionary : SerializableDictionary<string, TileBase>

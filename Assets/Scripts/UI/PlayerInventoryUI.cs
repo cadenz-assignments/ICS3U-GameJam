@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using Items;
 using Players;
 using UnityEngine;
@@ -13,8 +12,17 @@ namespace UI
         public PlayerInventoryBehaviour playerInventory;
 
         public CanvasGroup inventory;
-        
-        
+
+        private void Awake()
+        {
+            for (var i = 0; i < slots.Length; i++)
+            {
+                var slot = slots[i];
+                slot.thisIndex = i;
+                slot.inventory = playerInventory;
+            }
+        }
+
         private void Start()
         {
             playerInventory.InventoryChanged += UpdateSlots;

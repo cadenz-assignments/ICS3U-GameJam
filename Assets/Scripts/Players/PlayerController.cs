@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Save;
 using Terrain;
 using UnityEngine;
 
@@ -13,13 +13,15 @@ namespace Players
         private Rigidbody2D _rigidbody2D;
         private TerrainGenerator _terrainGenerator;
         private Vector3Int _prevPos;
+        private LayerSave _environmentLayer;
         
         private void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _terrainGenerator = FindObjectOfType<TerrainGenerator>();
             _prevPos = _terrainGenerator.tilemap.WorldToCell(_rigidbody2D.position);
-
+            _environmentLayer = SaveManager.Instance.CurrentSave.layers[0];
+            
             var startChunk = Chunk.ToChunkPos(_prevPos);
             EnteredNewChunk(startChunk, startChunk);
         }
@@ -97,12 +99,12 @@ namespace Players
 
             if (oldPoses.Any())
             {
-                _terrainGenerator.save.UnloadChunks(oldPoses);
+                _environmentLayer.UnloadChunks(oldPoses);
             }
             
             foreach (var n in newPoses)
             {
-                _terrainGenerator.save.LoadOrCreateChunk(n);
+                StartCoroutine(_environmentLayer.LoadOrCreateChunk(n));
             }
         }
     }

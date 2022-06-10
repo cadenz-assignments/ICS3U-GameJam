@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Terrain.Tiles;
+using Terrain;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace Terrain
+namespace Save
 {
     [Serializable]
     public class Chunk
@@ -20,10 +20,10 @@ namespace Terrain
         public List<Vector2Int> poses;
         public List<string> tiles;
 
-        [NonSerialized] public TileRegistry TileRegistry;
+        [NonSerialized] public TileRegistry tileRegistry;
         
-        /// Creates the chunk object but does NOT generate the tiles. You should NEVER call this. Use LoadOrGenerate instead. 
-        public Chunk(TileRegistry tileRegistry, Save save, Vector2Int pos)
+        /// Creates the chunk object but does NOT generate the tiles. Use LoadOrGenerate instead. 
+        public Chunk(TileRegistry tileRegistry, Vector2Int pos)
         {
             poses = new List<Vector2Int>();
             tiles = new List<string>();
@@ -32,7 +32,7 @@ namespace Terrain
             min = pos * ChunkSize;
             max = min + new Vector2Int(ChunkSize, ChunkSize);
 
-            TileRegistry = tileRegistry;
+            this.tileRegistry = tileRegistry;
         }
 
         public void Set(Vector2Int p, TileBase tile)
@@ -41,13 +41,13 @@ namespace Terrain
             if (poses.Contains(p))
             {
                 var index = poses.IndexOf(p);
-                tiles[index] = TileRegistry.GetId(tile);
+                tiles[index] = tileRegistry.GetId(tile);
                 Invalidate();
                 return;
             }
             
             poses.Add(p);
-            tiles.Add(TileRegistry.GetId(tile));
+            tiles.Add(tileRegistry.GetId(tile));
             Invalidate();
         }
 
@@ -64,7 +64,7 @@ namespace Terrain
         {
             Invalidate();
             var index = poses.IndexOf(p);
-            return index == -1 ? null : TileRegistry.Get(tiles[index]);
+            return index == -1 ? null : tileRegistry.Get(tiles[index]);
         }
 
         public void Fill(Tilemap tilemap)
@@ -106,6 +106,11 @@ namespace Terrain
         public static Vector2Int ToChunkPos(Vector3 pos)
         {
             return new Vector2Int((int) MathF.Floor(pos.x / ChunkSize), (int) MathF.Floor(pos.y / ChunkSize));
+        }
+        
+        public static Vector2Int ToChunkPos(Vector2Int pos)
+        {
+            return new Vector2Int((int) MathF.Floor((float) pos.x / ChunkSize), (int) MathF.Floor((float) pos.y / ChunkSize));
         }
     }
 }

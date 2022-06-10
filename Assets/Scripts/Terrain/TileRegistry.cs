@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace Terrain.Tiles
+namespace Terrain
 {
     [CreateAssetMenu(fileName = "Tile Registry", menuName = "Registry/Tile Registry")]
     public class TileRegistry : ScriptableObject
