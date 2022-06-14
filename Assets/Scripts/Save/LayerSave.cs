@@ -118,11 +118,16 @@ namespace Save
             return pos.ToString().Replace(", ", "_").Replace("(", "").Replace(")", "") + ".json";
         }
 
-        public virtual IEnumerator LoadOrCreateChunk(Vector2Int pos)
+        public void LoadOrCreateChunk(Vector3Int pos)
+        { 
+            LoadOrCreateChunk(Chunk.ToChunkPos(pos));
+        }
+        
+        public virtual void LoadOrCreateChunk(Vector2Int pos)
         {
             if (DoesChunkExist(pos, out var isLoaded))
             {
-                if (isLoaded) yield break;
+                if (isLoaded) return;
                 var c = JsonUtility.FromJson<Chunk>(File.ReadAllText(chunkPath + GetChunkFileName(pos)));
                 c.tileRegistry = tileRegistry;
                 c.Fill(tilemap);

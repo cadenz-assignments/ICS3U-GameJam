@@ -13,15 +13,15 @@ namespace Players
         private Rigidbody2D _rigidbody2D;
         private TerrainGenerator _terrainGenerator;
         private Vector3Int _prevPos;
-        private LayerSave _environmentLayer;
+        private List<LayerSave> _layers;
         
         private void Start()
         {
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _terrainGenerator = FindObjectOfType<TerrainGenerator>();
             _prevPos = _terrainGenerator.tilemap.WorldToCell(_rigidbody2D.position);
-            _environmentLayer = SaveManager.Instance.CurrentSave.layers[0];
-            
+            _layers = SaveManager.Instance.CurrentSave.layers;
+
             var startChunk = Chunk.ToChunkPos(_prevPos);
             EnteredNewChunk(startChunk, startChunk);
         }
@@ -99,12 +99,18 @@ namespace Players
 
             if (oldPoses.Any())
             {
-                _environmentLayer.UnloadChunks(oldPoses);
+                foreach (var layer in _layers)
+                {
+                    layer.UnloadChunks(oldPoses);
+                }
             }
-            
+
             foreach (var n in newPoses)
             {
-                StartCoroutine(_environmentLayer.LoadOrCreateChunk(n));
+                foreach (var layer in _layers)
+                {
+                    layer.LoadOrCreateChunk(n);
+                }
             }
         }
     }

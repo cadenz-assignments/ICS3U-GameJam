@@ -1,4 +1,3 @@
-using System;
 using Save;
 using Terrain;
 using UnityEngine;
@@ -12,7 +11,7 @@ namespace Players
         private WorldSave _worldSave;
         private Camera _camera;
         
-        [SerializeField] private Tilemap environment;
+        [SerializeField] private Grid grid;
         [SerializeField] private TileRegistry tileRegistry;
         [SerializeField] private GameObject tilemapPrefab;
 
@@ -31,33 +30,44 @@ namespace Players
 
                 var layer = 0;
                 bool hasNextLayer;
-                LayerSave nextLayer;
                 bool spotAvailable;
+                LayerSave thisLayer;
 
                 do
                 {
                     layer++;
                     hasNextLayer = _worldSave.HasLayer(layer);
-                    nextLayer = hasNextLayer ? _worldSave.layers[layer] : null;
-                    spotAvailable = hasNextLayer && nextLayer.IsPosAvailableSafe(nextLayer.tilemap.WorldToCell(mousePos));
+                    thisLayer = _worldSave.layers[layer - 1];
+                    spotAvailable = thisLayer.IsPosAvailableSafe(thisLayer.tilemap.WorldToCell(mousePos));
                 } while (!spotAvailable && hasNextLayer);
 
                 if (!hasNextLayer)
                 {
-                    var instantiated = Instantiate(tilemapPrefab).GetComponent<Tilemap>();
-                    instantiated.tileAnchor = new Vector3(0, layer, 0);
+                    var instantiated = Instantiate(tilemapPrefab, grid.transform).GetComponent<Tilemap>();
+                    instantiated.tileAnchor = new Vector3(0.5f, 0.5f, 0);
+                    instantiated.GetComponent<TilemapRenderer>().sortingOrder = layer;
                     _worldSave.AddLayer(new LayerSave(_worldSave.path, "placed_y" + layer, instantiated, tileRegistry));
-                    nextLayer = _worldSave.layers[layer];
+                    var nextLayer = _worldSave.layers[layer];
+                    SetTile(mousePos, nextLayer, layer);
                 }
-                
-                var p = nextLayer.tilemap.WorldToCell(mousePos);
-                var c = nextLayer.GetChunkFromTilePos(p);
-                c?.Set(new Vector2Int(p.x, p.y), tileRegistry.Get("sand"));
-            } 
+                else
+                {
+                    SetTile(mousePos, thisLayer, layer);
+                }
+            }
             else if (Input.GetMouseButtonDown(1))
             {
-                // TODO break    
+                // TODO break   
             }
+        }
+
+        private void SetTile(Vector3 mousePos, LayerSave layer, int layerNum)
+        {
+            var p = layer.tilemap.WorldToCell(mousePos);
+            layer.LoadOrCreateChunk(p);
+            var c = layer.GetChunkFromTilePos(p);
+            c?.Set(new Vector2Int(p.x, p.y), tileRegistry.Get("sand"));
+            layer.tilemap.SetTile(new Vector3Int(p.x, p.y, layerNum), tileRegistry.Get("sand"));
         }
     }
 }

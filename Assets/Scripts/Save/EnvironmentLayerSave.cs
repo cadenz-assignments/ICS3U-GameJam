@@ -16,11 +16,11 @@ namespace Save
             _terrainGenerator = terrainGenerator;
         }
 
-        public override IEnumerator LoadOrCreateChunk(Vector2Int pos)
+        public override void LoadOrCreateChunk(Vector2Int pos)
         {
             if (DoesChunkExist(pos, out var isLoaded))
             {
-                if (isLoaded) yield break;
+                if (isLoaded) return;
                 var c = JsonUtility.FromJson<Chunk>(File.ReadAllText(chunkPath + GetChunkFileName(pos)));
                 c.tileRegistry = _terrainGenerator.tileRegistry;
                 c.Fill(_terrainGenerator.tilemap);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using PathCreation;
 using Save;
 using UnityEngine;
@@ -11,7 +12,8 @@ namespace Terrain
     {
         public Tilemap tilemap;
         public TileRegistry tileRegistry;
-
+        public GameObject saveManager;
+        
         private TileBase _sandTile;
         private TileBase _waterTile;
         private TileBase _grassTile;
@@ -19,6 +21,7 @@ namespace Terrain
         
         private void Awake()
         {
+            SaveManager.Instance = Instantiate(saveManager).GetComponent<SaveManager>();
             _worldSave = SaveManager.Instance.CurrentSave;
             _worldSave.AddLayer(new EnvironmentLayerSave(_worldSave.path, this));
             _worldSave.LoadExistingLayers(tileRegistry);

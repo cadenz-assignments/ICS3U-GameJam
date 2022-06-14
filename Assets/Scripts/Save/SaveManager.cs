@@ -4,7 +4,7 @@ namespace Save
 {
     public class SaveManager : MonoBehaviour
     {
-        public static SaveManager Instance { get; private set; }
+        public static SaveManager Instance { get; set; }
         
         public WorldSave CurrentSave { get; private set; }
 
