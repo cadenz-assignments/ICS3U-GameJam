@@ -37,7 +37,7 @@ namespace Terrain
 
         public Chunk GenerateNewChunk(Vector2Int chunkPos)
         {
-            var chunk = new Chunk(tileRegistry, chunkPos);
+            var chunk = new Chunk(tileRegistry, chunkPos, 0);
             var min = chunk.min;
             var max = chunk.max;
             

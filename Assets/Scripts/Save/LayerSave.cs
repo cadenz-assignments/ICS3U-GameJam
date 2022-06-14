@@ -11,13 +11,14 @@ namespace Save
 {
     public class LayerSave
     {
-        protected readonly string chunkPath;
-        public readonly Tilemap tilemap;
-        protected readonly TileRegistry tileRegistry;
+        public readonly Tilemap Tilemap;
+        public readonly int Layer;
+        protected readonly string ChunkPath;
+        protected readonly TileRegistry TileRegistry;
         
         public Dictionary<Vector2Int, Chunk> loadedChunks;
 
-        public LayerSave(string path, string layerName, Tilemap tilemap, TileRegistry tileRegistry)
+        public LayerSave(string path, string layerName, int layer, Tilemap tilemap, TileRegistry tileRegistry)
         {
             var sb = new StringBuilder(path);
             
@@ -25,16 +26,17 @@ namespace Save
             sb.Append(layerName);
             sb.Append("/");
             
-            chunkPath = sb.ToString();
+            ChunkPath = sb.ToString();
             
-            if (!Directory.Exists(chunkPath))
+            if (!Directory.Exists(ChunkPath))
             {
-                Directory.CreateDirectory(chunkPath);
+                Directory.CreateDirectory(ChunkPath);
             }
             
             loadedChunks = new Dictionary<Vector2Int, Chunk>();
-            this.tilemap = tilemap;
-            this.tileRegistry = tileRegistry;
+            Tilemap = tilemap;
+            TileRegistry = tileRegistry;
+            Layer = layer;
         }
         
         public bool DoesChunkExist(Vector2Int pos, out bool isLoaded)
@@ -46,7 +48,7 @@ namespace Save
             }
 
             isLoaded = false;
-            return File.Exists(chunkPath + GetChunkFileName(pos));
+            return File.Exists(ChunkPath + GetChunkFileName(pos));
         }
 
         public void Add(Chunk chunk)
@@ -98,7 +100,7 @@ namespace Save
                 SaveChunk(chunk);
                 foreach (var p in chunk.poses)
                 {
-                    tilemap.SetTile(new Vector3Int(p.x, p.y, 0), null);
+                    Tilemap.SetTile(new Vector3Int(p.x, p.y, 0), null);
                 }
             }
         }
@@ -110,7 +112,7 @@ namespace Save
         
         private void SaveChunk(Chunk chunk)
         {
-            File.WriteAllText(chunkPath + GetChunkFileName(chunk.pos), JsonUtility.ToJson(chunk, false));
+            File.WriteAllText(ChunkPath + GetChunkFileName(chunk.pos), JsonUtility.ToJson(chunk, false));
         }
         
         protected string GetChunkFileName(Vector2Int pos)
@@ -128,14 +130,14 @@ namespace Save
             if (DoesChunkExist(pos, out var isLoaded))
             {
                 if (isLoaded) return;
-                var c = JsonUtility.FromJson<Chunk>(File.ReadAllText(chunkPath + GetChunkFileName(pos)));
-                c.tileRegistry = tileRegistry;
-                c.Fill(tilemap);
+                var c = JsonUtility.FromJson<Chunk>(File.ReadAllText(ChunkPath + GetChunkFileName(pos)));
+                c.tileRegistry = TileRegistry;
+                c.Fill(Tilemap);
                 loadedChunks.Add(pos, c);
             }
             else
             {
-                loadedChunks.Add(pos, new Chunk(tileRegistry, pos));
+                loadedChunks.Add(pos, new Chunk(TileRegistry, pos, Layer));
             }
         }
     }

@@ -47,8 +47,8 @@ namespace Save
             {
                 var ln = layerName[(layerName.LastIndexOf('/') + 1)..];
                 var instantiated = Object.Instantiate(prefab, grid.transform).GetComponent<Tilemap>();
-                instantiated.tileAnchor = new Vector3(0, int.Parse(ln.Replace("placed_y", "")), 0);
-                AddLayer(new LayerSave(path, ln, instantiated, tileRegistry));
+                instantiated.tileAnchor = new Vector3(0, 0, 0);
+                AddLayer(new LayerSave(path, ln, int.Parse(ln.Replace("placed_y", "")), instantiated, tileRegistry));
             }
         }
 

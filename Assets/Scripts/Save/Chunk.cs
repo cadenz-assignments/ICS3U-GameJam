@@ -13,6 +13,7 @@ namespace Save
         [NonSerialized] public const int ChunkSize = 16;
         
         public Vector2Int pos;
+        public int layer;
         
         public Vector2Int min;
         public Vector2Int max;
@@ -21,14 +22,15 @@ namespace Save
         public List<string> tiles;
 
         [NonSerialized] public TileRegistry tileRegistry;
-        
+
         /// Creates the chunk object but does NOT generate the tiles. Use LoadOrGenerate instead. 
-        public Chunk(TileRegistry tileRegistry, Vector2Int pos)
+        public Chunk(TileRegistry tileRegistry, Vector2Int pos, int layer)
         {
             poses = new List<Vector2Int>();
             tiles = new List<string>();
             
             this.pos = pos;
+            this.layer = layer;
             min = pos * ChunkSize;
             max = min + new Vector2Int(ChunkSize, ChunkSize);
 
@@ -72,7 +74,7 @@ namespace Save
             foreach (var p in poses)
             {
                 var t = Get(p);
-                tilemap.SetTile(new Vector3Int(p.x, p.y, 0), t);
+                tilemap.SetTile(new Vector3Int(p.x, p.y, layer), t);
             }
         }
 

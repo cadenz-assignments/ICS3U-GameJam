@@ -11,7 +11,7 @@ namespace Save
     {
         private readonly TerrainGenerator _terrainGenerator;
         
-        public EnvironmentLayerSave(string path, TerrainGenerator terrainGenerator) : base(path, "environment", terrainGenerator.tilemap, terrainGenerator.tileRegistry)
+        public EnvironmentLayerSave(string path, TerrainGenerator terrainGenerator) : base(path, "environment", 0, terrainGenerator.tilemap, terrainGenerator.tileRegistry)
         {
             _terrainGenerator = terrainGenerator;
         }
@@ -21,7 +21,7 @@ namespace Save
             if (DoesChunkExist(pos, out var isLoaded))
             {
                 if (isLoaded) return;
-                var c = JsonUtility.FromJson<Chunk>(File.ReadAllText(chunkPath + GetChunkFileName(pos)));
+                var c = JsonUtility.FromJson<Chunk>(File.ReadAllText(ChunkPath + GetChunkFileName(pos)));
                 c.tileRegistry = _terrainGenerator.tileRegistry;
                 c.Fill(_terrainGenerator.tilemap);
                 loadedChunks.Add(pos, c);
